@@ -1,0 +1,49 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Exercise {
+  id          Int      @id @default(autoincrement())
+  name        String
+  description String?
+  type        String   
+  targetMuscle String?
+  youtubeId   String? 
+  logs        WorkoutLog[]
+  schedules   DaySchedule[]
+}
+
+model DaySchedule {
+  id           Int      @id @default(autoincrement())
+  dayOfWeek    Int      
+  exerciseId   Int
+  exercise     Exercise @relation(fields: [exerciseId], references: [id])
+  targetSets   Int      @default(3)
+  targetReps   Int      @default(10)
+  order        Int      
+}
+
+model WorkoutSession {
+  id          Int      @id @default(autoincrement())
+  date        DateTime @default(now())
+  isSkipped   Boolean  @default(false)
+  notes       String?
+  logs        WorkoutLog[]
+}
+
+model WorkoutLog {
+  id               Int      @id @default(autoincrement())
+  sessionId        Int
+  session          WorkoutSession @relation(fields: [sessionId], references: [id])
+  exerciseId       Int
+  exercise         Exercise       @relation(fields: [exerciseId], references: [id])
+  setNumber        Int
+  weight           Float    
+  reps             Int
+  isCompleted      Boolean  @default(false)
+}
